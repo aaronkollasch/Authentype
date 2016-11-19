@@ -7,7 +7,7 @@ import errno
 
 _repetitions = 5
 _dialog_text = 'Type: "the quick brown fox jumped over the lazy dog and ran all the way to wildhacks" {0} times\n' \
-               'press enter between each and release all keys before pressing enter\n'.format(_repetitions)
+               'press enter between each repetition\n'.format(_repetitions)
 
 
 class DataHandler:
@@ -134,7 +134,7 @@ class AcquisitionWindow:
         self.keys_still_down = set()
         self.return_counter.inc()
         if self.return_counter.count >= _repetitions:
-            self.text.insert(tk.END, '\nThanks!')
+            self.text.insert(tk.END, '\nThanks! Press the save and clear button to finish or start again')
             self.text.config(state=tk.DISABLED)
 
     def on_closing(self):
