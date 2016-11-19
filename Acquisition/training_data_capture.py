@@ -47,6 +47,7 @@ class AcquisitionWindow:
 
     def __init__(self):    
         self.root = tk.Tk()
+        self.root.title("Authentype trainer")
 
         self.frame = tk.Frame(self.root)
         self.frame.pack()
@@ -156,6 +157,7 @@ class AcquisitionWindow:
         self.text2.delete(0, "end")
         self.root.update()
         self.text2.focus_set()
+        self.return_counter.reset()
 
     # import curses
     # scr = curses.initscr()
