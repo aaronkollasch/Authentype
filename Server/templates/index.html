@@ -1,8 +1,7 @@
 {% extends "layout.html" %}
 {% block body %}
 <link rel="stylesheet" type="text/css" href="/static/style.css">
-
-
+<link href="static/index.js">
     <style>
 .alert {
     padding: 20px;
@@ -12,143 +11,66 @@
     transition: opacity 0.6s;
     margin-bottom: 15px;
 }
-
 .alert.success {background-color: #4CAF50;}
 .alert.info {background-color: #2196F3;}
 .alert.warning {background-color: #ff9800;}
 
-.closebtn {
-    margin-left: 15px;
-    color: white;
-    font-weight: bold;
-    float: right;
-    font-size: 22px;
-    line-height: 20px;
-    cursor: pointer;
-    transition: 0.3s;
+.button_style {
+  -webkit-border-radius: 28;
+  -moz-border-radius: 28;
+  border-radius: 28px;
+  font-family: Lobster;
+  color: #000000;
+  font-size: 20px;
+  background: #ffffff;
+  padding: 10px 20px 10px 20px;
+  border: solid #000000 2px;
+  text-decoration: none;
 }
 
-.closebtn:hover {
-    color: black;
+.button_style:hover {
+  background: #dbcedb;
+  background-image: -webkit-linear-gradient(top, #dbcedb, #d1bed1);
+  background-image: -moz-linear-gradient(top, #dbcedb, #d1bed1);
+  background-image: -ms-linear-gradient(top, #dbcedb, #d1bed1);
+  background-image: -o-linear-gradient(top, #dbcedb, #d1bed1);
+  background-image: linear-gradient(to bottom, #dbcedb, #d1bed1);
+  text-decoration: none;
 }
 </style>
 
-
-<script language="JavaScript" type="text/javascript">
-function setLabel(buttonNum, buttonLabel){
-    if (buttonNum == 1) {
-        document.getElementById('button1').value = "Key " + buttonLabel; }
-    else if (buttonNum == 2) {
-        document.getElementById('button2').value = "Key " + buttonLabel; }
-    else if (buttonNum == 3) {
-        document.getElementById('button3').value = buttonLabel;
-    }
-    else {
-        document.getElementById('button4').value = buttonLabel;
-    }
-    document.getElementById('field1').value = "";
-    document.getElementById('field1').focus();
-}
-
-var numPresses = 0;
-
-function countPresses () {
-    var buttonLabel;
-    numPresses++;
-    buttonLabel = "Pressed " + numPresses + " time\(s\)";
-    setLabel(2, buttonLabel);
-}
-var ky;
-var ky_prev;
-var start;
-var end;
-function keyDownTime(e) {
-    ky_prev = ky;
-    ky = e.which;
-    start = +new Date();
-
-    if (end != null) {
-        if (ky_prev != null) {
-            buttonLabel = "Time between button presses of " + ky_prev + " and " + ky + ": " + (start - end) + " Milliseconds";
-            console.log(buttonLabel);
-            setLabel(4, buttonLabel);
-        }
-    }
-}
-function keyUpTime(e){
-    end = +new Date();
-    var buttonLabel;
-    buttonLabel = "Time Down for " + e.keyCode + ": "  +(end - start) + " Milliseconds";
-    console.log(buttonLabel);
-    setLabel(3, buttonLabel)
-}
-
-function disableEnterKey(e)
-{
-     var key;
-     if(window.event)
-          key = window.event.keyCode; //IE
-     else
-          key = e.which; //firefox
-
-     return (key != 13);
-}
-
- $(function() {
-    var submit_form = function(e) {
-      $.getJSON($SCRIPT_ROOT + '/_add_numbers', {
-        a: $('input[name="a"]').val(),
-        b: $('input[name="b"]').val()
-      }, function(data) {
-        $('#result').text(data.result);
-        $('input[name=a]').focus().select();
-      });
-      return false;
-    };
-    $('a#calculate').bind('click', submit_form);
-    $('input[type=text]').bind('keydown', function(e) {
-      if (e.keyCode == 13) {
-        submit_form(e);
-      }
-    });
-    $('input[name=a]').focus();
-
-     $('input[type=text]').bind('onkeypress', function(e) {
-      if (e.keyCode == 13) {
-        submit_form(e);
-      }
-    });
-  });
-
-</script>
-
-    <tr valign="middle">
+<tr valign="middle">
 <td>
 <center>
 <img src="/static/authentype.jpg" alt="Authentype" style="width:304px;height:228px;">
 
-<p>Welcome Comrade,</p>
+<p>Introducing Authentype!</p>
+    <br />
+<p>Register below for an exciting look at a novel form of 2-factor identification!</p>
+<br />
+<p>Enter an arbitrary username and password below. After hitting register, you will take a typing dynamics evaluation. </p>
+    <br />
+    <p> Then, when you login, a typing dyanmics test will be used to verify the user's identity!</p>
+<br />
 
-
-<!-- The Modal -->
-  <!-- Modal Content -->
-    <div class=""container">
+<div class=""container">
     <section id ="content">
       <form method="post" action="/hello">
-          <label for="yourname">Username<br /></label>
-          <input type="text" name="username" /><br />
-          <label for="youremail">Password<br />
-          <input type="password" name="pw" /><br />
-          <input type="submit" value = "login" name = 'submit'/>
-          <input type="submit" value = "register" name = 'submit'/>
+          <label>Username<br /></label>
+          <input type="text" class="ui-input-text" name="username" /><br />
+          <br />
+          <label>Password<br />
+          <input type="password" class="ui-input-text" name="pw" /><br /> <br />
+          <input type="submit" class="button_style" value = "login" name = 'submit'/>
+          <input type="submit" class="button_style" value = "register" name = 'submit'/>
       </form>
     </section>
     </div>
 </tr>
 </table>
-
 <br />
 <br />
+</center>
 
 {%  if match %}
 <div class="alert success">
@@ -196,6 +118,4 @@ for (i = 0; i < close.length; i++) {
     }
 }
 </script>
-
-</center>
 {% endblock %}
