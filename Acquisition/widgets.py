@@ -150,6 +150,7 @@ class AuthenticationWindow:
     save_name = name
     old_keys_still_down = set()
     keys_still_down = set()
+    send_text = ""
 
     def __init__(self, user_id, user_name, server_path, save_dir=None):
         self.user_id = user_id
@@ -189,7 +190,7 @@ class AuthenticationWindow:
             return
         if key == '\x7f':
             key = 'del'
-        print 'up', key
+        # print 'up', key
         if key in self.old_keys_still_down:
             self.training_data_handler.add_data_to_instance(
                 len(self.training_data_handler.training_data) - 1,
@@ -215,7 +216,7 @@ class AuthenticationWindow:
         if key == '\x7f':
             key = 'del'
         self.keys_still_down.add(key)
-        print 'down', key
+        # print 'down', key
         self.training_data_handler.add_data(dict(
             key=key,
             time=time.time(),
@@ -225,6 +226,7 @@ class AuthenticationWindow:
     def return_press(self, e):
         print 'return'
         self.training_data_handler.new_instance()
+        self.send_text = self.text.get('1.0', tk.END)
         self.text.delete('1.0', tk.END)
         self.text.insert(tk.END, 'Sending data')
         self.send_and_check()
@@ -238,8 +240,9 @@ class AuthenticationWindow:
 
     def send_and_check(self):
         print 'send'
-        json_data = json.dumps(self.training_data_handler.training_data[-1])
-        print json_data
+        json_data = json.dumps({'string': self.send_text,
+                                'data': [self.training_data_handler.training_data[-1]]})
+        # print json_data
 
         # connection = httplib.HTTPSConnection(self.serv_address)
         headers = {'Content-type': 'application/json'}
