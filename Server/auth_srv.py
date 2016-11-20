@@ -5,6 +5,8 @@ from flask import json
 from flask import render_template
 from flask import request
 import multiprocessing
+import data_processing
+import pandas as pd
 
 app = Flask(__name__)
 users = {'Joe': {'pw': 'Kirkland'}}
@@ -28,10 +30,23 @@ def hello():
     
 @app.route('/auth' , methods=['POST'])
 def auth():
-    auth_data = request.data
+    recv_data = json.loads(request.data)
+    auth_data = recv_data['data']
+    auth_string = recv_data['string']
     print auth_data
+    auth_df = data_processing.process_timestamp_data(
+        auth_data, name=None, save_name=None, save_dir=None)
+    if len(auth_df) == 0:
+        return "rejected"
+    training_df = pd.read_table('/Users/Aaron/Authentype_local/Aaron_2016-11-19_14-47-28_quickbrownfox/'
+                                'Aaron_2016-11-19_14-47-28.txt')  #TODO
+    auth_score, _, _ = data_processing.find_ks_score(auth_df, training_df)
+    print auth_score
+    if auth_score < -0.7:
+        return "Thanks Comrade!"
+    else:
+        return "rejected"
     #render_template('index.html', registered=1)
-    return "Thanks Comrade!"
     #received_json_data = json.loads(flask.request.)
     #pw = flask.request.form['pw']
 
@@ -40,4 +55,4 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=False)
