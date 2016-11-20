@@ -1,8 +1,8 @@
-@import url(http://fonts.googleapis.com/css?family=Lobster);
+@import url('https://fonts.googleapis.com/css?family=Roboto|Roboto+Slab');
 
 body {
   background: hsla(255, 255%, 255%, 1);
-  font: 100%/1 'Lobster', cursive;
+  font: 110%/1 'Roboto Slab', serif;
 }
 
 .ui-input-text {
@@ -12,4 +12,6 @@ body {
     background: transparent;
     border-bottom: 2px solid black;
     width: 200px;
+    font: 110%/1 'Roboto Slab', serif;
+    text-align: center;
 }

@@ -19,9 +19,10 @@
   -webkit-border-radius: 28;
   -moz-border-radius: 28;
   border-radius: 28px;
-  font-family: Lobster;
+  font-family: Roboto;
   color: #000000;
   font-size: 20px;
+  font-weight: 300;
   background: #ffffff;
   padding: 10px 20px 10px 20px;
   border: solid #000000 2px;
@@ -37,6 +38,8 @@
   background-image: linear-gradient(to bottom, #dbcedb, #d1bed1);
   text-decoration: none;
 }
+
+
 </style>
 
 <tr valign="middle">
@@ -44,23 +47,21 @@
 <center>
 <img src="/static/authentype.jpg" alt="Authentype" style="width:304px;height:228px;">
 
-<p>Introducing Authentype!</p>
+<p><h1>Introducing Authentype!</h1></p>
     <br />
-<p>Register below for an exciting look at a novel form of 2-factor identification!</p>
-<br />
+<p>Register below for an exciting look at a novel form of 2-factor authentication!</p>
 <p>Enter an arbitrary username and password below. After hitting register, you will take a typing dynamics evaluation. </p>
-    <br />
-    <p> Then, when you login, a typing dyanmics test will be used to verify the user's identity!</p>
+    <p> Then, when you login, a typing dynamics test will be used to verify the user's identity!</p>
 <br />
 
 <div class=""container">
     <section id ="content">
       <form method="post" action="/hello">
-          <label>Username<br /></label>
-          <input type="text" class="ui-input-text" name="username" /><br />
+          <input type="text" class="ui-input-text" name="username" placeholder="username" onfocus="make_blank(this);"
+       onblur="restore_placeholder(this);"/><br />
           <br />
-          <label>Password<br />
-          <input type="password" class="ui-input-text" name="pw" /><br /> <br />
+          <input type="password" class="ui-input-text" name="pw" placeholder="password" onfocus="make_blank(this);"
+       onblur="restore_placeholder(this);"/><br /> <br />
           <input type="submit" class="button_style" value = "login" name = 'submit'/>
           <input type="submit" class="button_style" value = "register" name = 'submit'/>
       </form>
@@ -117,5 +118,18 @@ for (i = 0; i < close.length; i++) {
         setTimeout(function(){ div.style.display = "none"; }, 600);
     }
 }
+
+function make_blank(oInput) {
+    if (oInput.value == 'placeholder') {
+        oInput.value = '';
+    }
+}
+
+function restore_placeholder(oInput) {
+    if (oInput.value == '') {
+        oInput.value = placeholder;
+    }
+}
+
 </script>
 {% endblock %}
