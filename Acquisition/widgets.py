@@ -1,7 +1,6 @@
 import time
 import pandas as pd
 import numpy as np
-import Tkinter as tk
 import sys
 import errno
 from multiprocessing import *
@@ -9,6 +8,7 @@ import json
 import requests
 import getopt
 import sched
+import Tkinter as tk
 
 _repetitions = 5
 _dialog_text = 'Type: "{0}" {1} times\n' \
@@ -52,7 +52,7 @@ class RegistrationWindow:
         self.user_id = user_id
         self.user_name = user_name
         self.server_address = server_path
-
+        
         self.root = tk.Tk()
         self.root.title("Authentype registration")
 
@@ -74,7 +74,12 @@ class RegistrationWindow:
         self.text.bind('<Return>', self.return_press)
 
         self.text.focus_set()
+        self.root.lift()
+        self.root.attributes('-topmost', True)
 
+        self.root.after_idle(self.root.attributes, '-topmost', False)
+        self.root.after(1, lambda: self.root.focus_force())
+        self.root.after(1, lambda: self.root.grab_set_global())
         self.root.mainloop()
 
     def key_up(self, e):
@@ -83,7 +88,7 @@ class RegistrationWindow:
             return
         if key == '\x7f':
             key = 'del'
-        print 'up', key
+        # print 'up', key
         if key in self.old_keys_still_down:
             self.training_data_handler.add_data_to_instance(
                 len(self.training_data_handler.training_data)-1,
@@ -109,7 +114,7 @@ class RegistrationWindow:
         if key == '\x7f':
             key = 'del'
         self.keys_still_down.add(key)
-        print 'down', key
+        # print 'down', key
         self.training_data_handler.add_data(dict(
             key=key,
             time=time.time(),
@@ -130,6 +135,9 @@ class RegistrationWindow:
                 self.text.configure(bg='#CCFFCC')
                 self.text.config(state=tk.DISABLED)
                 self.root.update()
+                s = sched.scheduler(time.time, time.sleep)
+                s.enter(1.5, 1, self.root.destroy, ())
+                s.run()
             else:
                 self.text.insert(tk.END, '\nError')
                 print 'ERROR'
@@ -152,14 +160,14 @@ class AuthenticationWindow:
     return_counter = Counter()
     training_data_handler = DataHandler()
     send_text = ""
-
+    
     def __init__(self, user_id, user_name, server_path, text):
         self.user_id = user_id
         self.user_name = user_name
         self.server_address = server_path
+        self.trial_text = text
 
         self.root = tk.Tk()
-        print 'test'
         self.root.title("Authentype verification")
 
         self.frame = tk.Frame(self.root)
@@ -168,7 +176,7 @@ class AuthenticationWindow:
         self.text1 = tk.Text(self.frame, width=100, height=2)
         self.text1.pack(side=tk.TOP)
         self.text1.insert(tk.END, 'Authentypication for ' + self.user_name +
-                          '\nType: "{0}"'.format(text))
+                          '\nType: "{0}"'.format(self.trial_text))
         self.text1.tag_configure("center", justify='center')
         self.text1.tag_add("center", 1.0, "end")
         self.text1.config(state=tk.DISABLED)
@@ -180,7 +188,9 @@ class AuthenticationWindow:
         self.text.bind('<Return>', self.return_press)
 
         self.text.focus_set()
-
+        self.root.lift()
+        self.root.attributes('-topmost', True)
+        self.root.after_idle(self.root.attributes, '-topmost', False)
         self.root.mainloop()
 
     def key_up(self, e):
@@ -210,7 +220,7 @@ class AuthenticationWindow:
         ))
 
     def return_press(self, e):
-        print 'return'
+        # print 'return'
         self.training_data_handler.new_instance()
         self.text.delete('1.0', tk.END)
         self.text.insert(tk.END, 'Sending data...')
@@ -220,9 +230,19 @@ class AuthenticationWindow:
             self.text.insert(tk.END, 'Approved')
             self.root.update()
             s = sched.scheduler(time.time, time.sleep)
-            s.enter(1, 1, self.root.destroy(), ())
+            s.enter(1, 1, self.root.destroy, ())
             s.run()
         else:
+            self.text.configure(bg='#FFCCCC')
+            self.text1.config(state=tk.NORMAL)
+            self.text1.delete('1.0', tk.END)
+            self.text1.insert(tk.END, 'Retry Authentypication for ' + self.user_name +
+                              '\nType: "{0}"'.format(self.trial_text))
+            self.text1.tag_configure("center", justify='center')
+            self.text1.tag_add("center", 1.0, "end")
+            self.text1.config(state=tk.DISABLED)
+            self.text.delete('1.0', tk.END)
+            self.root.update()
             self.training_data_handler = DataHandler()
 
     def send_and_check(self):
@@ -247,7 +267,7 @@ class AuthenticationWindow:
 def process_timestamp_data(data, name=None, save_name=None, save_dir='/Users/Aaron/Authentype_local/'):
     run_dfs = []
     for i, run in enumerate(data):
-        print 'run', i
+        # print 'run', i
         if len(run) == 0:
             continue
         # print run
@@ -283,9 +303,9 @@ def process_timestamp_data(data, name=None, save_name=None, save_dir='/Users/Aar
         for df in run_dfs[1:]:
             merged_run_dfs = merged_run_dfs.append(df)
     merged_run_dfs['name'] = name
-    print
-    print "merged"
-    print merged_run_dfs
+    # print
+    # print "merged"
+    # print merged_run_dfs
     if save_name is not None and len(save_name) > 0:
         print 'save as:', save_name
         try:
