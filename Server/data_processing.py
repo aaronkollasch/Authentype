@@ -16,7 +16,7 @@ def process_timestamp_data(data, name=None, save_name=None, save_dir='/Users/Aar
         print 'run', i
         if len(run) == 0:
             continue
-        print run
+        # print run
         run_df = pd.DataFrame(run)
         # print run_df
         run_df = run_df.sort_values(by=['key', 'time'])

@@ -7,9 +7,11 @@ from flask import request
 import multiprocessing
 import data_processing
 import pandas as pd
+import editdistance
 
 app = Flask(__name__)
 users = {'Joe': {'pw': 'Kirkland'}}
+training_auth_string = "the quick brown fox jumped over the lazy dog and ran all the way to wildhacks"
 
 @app.route('/hello' , methods=['POST'])
 def hello():
@@ -32,14 +34,17 @@ def hello():
 def auth():
     recv_data = json.loads(request.data)
     auth_data = recv_data['data']
-    auth_string = recv_data['string']
-    print auth_data
+    test_auth_string = recv_data['string']
+    print test_auth_string
+    lev_dist = editdistance.eval(training_auth_string, test_auth_string)
+    if lev_dist > round(len(training_auth_string) / 10):
+        return "rejected"
     auth_df = data_processing.process_timestamp_data(
         auth_data, name=None, save_name=None, save_dir=None)
     if len(auth_df) == 0:
         return "rejected"
     training_df = pd.read_table('/Users/Aaron/Authentype_local/Aaron_2016-11-19_14-47-28_quickbrownfox/'
-                                'Aaron_2016-11-19_14-47-28.txt')  #TODO
+                                'Aaron_2016-11-19_14-47-28.txt')
     auth_score, _, _ = data_processing.find_ks_score(auth_df, training_df)
     print auth_score
     if auth_score < -0.7:
@@ -55,4 +60,4 @@ def index():
     return render_template('index.html')
 
 if __name__ == '__main__':
-    app.run(debug=False)
+    app.run(debug=True)
