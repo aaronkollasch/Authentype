@@ -48,12 +48,19 @@ def auth():
     auth_score, _, _ = data_processing.find_ks_score(auth_df, training_df)
     print auth_score
     if auth_score < -0.7:
-        return "Thanks Comrade!"
+        return "approved"
     else:
         return "rejected"
     #render_template('index.html', registered=1)
     #received_json_data = json.loads(flask.request.)
     #pw = flask.request.form['pw']
+    
+@app.route('/reg' , methods=['POST'])
+def reg():
+    recv_data = json.loads(request.data)
+    auth_data = recv_data['data']
+    
+    return 'many thanks!'
 
 @app.route('/')
 def index():

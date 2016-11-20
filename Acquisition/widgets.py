@@ -2,17 +2,17 @@ import time
 import pandas as pd
 import numpy as np
 import Tkinter as tk
-import os
+import sys
 import errno
-import sched
 from multiprocessing import *
-import httplib
 import json
 import requests
+import getopt
+import sched
 
 _repetitions = 5
-_dialog_text = 'Type: "the quick brown fox jumped over the lazy dog and ran all the way to wildhacks" {0} times\n' \
-               'press enter between each repetition\n'.format(_repetitions)
+_dialog_text = 'Type: "{0}" {1} times\n' \
+               'press enter between each repetition\n'
 
 
 class DataHandler:
@@ -45,15 +45,13 @@ class Counter:
 class RegistrationWindow:
     return_counter = Counter()
     training_data_handler = DataHandler()
-    name = time.strftime("%Y-%m-%d_%H-%M-%S")
-    save_name = name
     old_keys_still_down = set()
     keys_still_down = set()
 
-    def __init__(self, user_id, user_name, save_dir=None):
+    def __init__(self, user_id, user_name, server_path, text):
         self.user_id = user_id
         self.user_name = user_name
-        self.save_dir = save_dir
+        self.server_address = server_path
 
         self.root = tk.Tk()
         self.root.title("Authentype registration")
@@ -70,14 +68,13 @@ class RegistrationWindow:
 
         self.text = tk.Text(self.root, width=100, height=20)
         self.text.pack()
-        self.text.insert(tk.END, _dialog_text)
+        self.text.insert(tk.END, _dialog_text.format(text, _repetitions))
         self.text.bind("<KeyPress>", self.key_down)
         self.text.bind("<KeyRelease>", self.key_up)
         self.text.bind('<Return>', self.return_press)
 
         self.text.focus_set()
 
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()
 
     def key_up(self, e):
@@ -126,37 +123,40 @@ class RegistrationWindow:
         self.keys_still_down = set()
         self.return_counter.inc()
         if self.return_counter.count >= _repetitions:
-            self.text.insert(tk.END, '\nRegistration completed!')
-            self.text.configure(bg='#CCFFCC')
-            self.text.config(state=tk.DISABLED)
-            self.root.update()
-            s = sched.scheduler(time.time, time.sleep)
-            s.enter(1, 1, self.on_closing, ())
-            s.run()
-            print time.time()
+            self.text.insert(tk.END, '\nSending data')
+            r_text = self.send_data()
+            if r_text == 'many thanks!':
+                self.text.insert(tk.END, '\nRegistration completed!')
+                self.text.configure(bg='#CCFFCC')
+                self.text.config(state=tk.DISABLED)
+                self.root.update()
+            else:
+                self.text.insert(tk.END, '\nError')
+                print 'ERROR'
 
-    def on_closing(self):
-        print 'close'
-        self.training_data_handler.new_instance()
-        process_timestamp_data(self.training_data_handler.training_data, name=self.name, save_name=self.save_name,
-                               save_dir=self.save_dir)
-        self.root.destroy()
+    def send_data(self):
+        print 'send'
+        json_data = json.dumps({'user_id': self.user_id,
+                                'data': self.training_data_handler.training_data})
+        # print json_data
+
+        headers = {'Content-type': 'application/json'}
+
+        r = requests.post(self.server_address + '/reg', headers=headers, data=json_data)
+        print r
+        print r.text
+        return r.text
 
 
 class AuthenticationWindow:
     return_counter = Counter()
     training_data_handler = DataHandler()
-    name = time.strftime("%Y-%m-%d_%H-%M-%S")
-    save_name = name
-    old_keys_still_down = set()
-    keys_still_down = set()
     send_text = ""
 
-    def __init__(self, user_id, user_name, server_path, save_dir=None):
+    def __init__(self, user_id, user_name, server_path, text):
         self.user_id = user_id
         self.user_name = user_name
         self.server_address = server_path
-        self.save_dir = save_dir
 
         self.root = tk.Tk()
         print 'test'
@@ -168,7 +168,7 @@ class AuthenticationWindow:
         self.text1 = tk.Text(self.frame, width=100, height=2)
         self.text1.pack(side=tk.TOP)
         self.text1.insert(tk.END, 'Authentypication for ' + self.user_name +
-                          '\nType: "the quick brown fox jumped over the lazy dog and ran all the way to wildhacks"')
+                          '\nType: "{0}"'.format(text))
         self.text1.tag_configure("center", justify='center')
         self.text1.tag_add("center", 1.0, "end")
         self.text1.config(state=tk.DISABLED)
@@ -181,7 +181,6 @@ class AuthenticationWindow:
 
         self.text.focus_set()
 
-        self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
         self.root.mainloop()
 
     def key_up(self, e):
@@ -191,23 +190,11 @@ class AuthenticationWindow:
         if key == '\x7f':
             key = 'del'
         # print 'up', key
-        if key in self.old_keys_still_down:
-            self.training_data_handler.add_data_to_instance(
-                len(self.training_data_handler.training_data) - 1,
-                dict(
-                    key=key,
-                    time=time.time(),
-                    type='u'
-                )
-            )
-            self.old_keys_still_down.discard(key)
-        else:
-            self.training_data_handler.add_data(dict(
-                key=key,
-                time=time.time(),
-                type='u'
-            ))
-            self.keys_still_down.discard(key)
+        self.training_data_handler.add_data(dict(
+            key=key,
+            time=time.time(),
+            type='u'
+        ))
 
     def key_down(self, e):
         key = e.char
@@ -215,7 +202,6 @@ class AuthenticationWindow:
             return
         if key == '\x7f':
             key = 'del'
-        self.keys_still_down.add(key)
         # print 'down', key
         self.training_data_handler.add_data(dict(
             key=key,
@@ -226,21 +212,23 @@ class AuthenticationWindow:
     def return_press(self, e):
         print 'return'
         self.training_data_handler.new_instance()
-        self.send_text = self.text.get('1.0', tk.END)
         self.text.delete('1.0', tk.END)
-        self.text.insert(tk.END, 'Sending data')
-        self.send_and_check()
-        self.training_data_handler = DataHandler()
-        self.text.configure(bg='#CCFFCC')
-        # self.text.config(state=tk.DISABLED)
-        self.root.update()
-        # s = sched.scheduler(time.time, time.sleep)
-        # s.enter(1, 1, self.on_closing, ())
-        # s.run()
+        self.text.insert(tk.END, 'Sending data...')
+        r_text = self.send_and_check()
+        if r_text == 'approved':
+            self.text.configure(bg='#CCFFCC')
+            self.text.insert(tk.END, 'Approved')
+            self.root.update()
+            s = sched.scheduler(time.time, time.sleep)
+            s.enter(1, 1, self.root.destroy(), ())
+            s.run()
+        else:
+            self.training_data_handler = DataHandler()
 
     def send_and_check(self):
         print 'send'
-        json_data = json.dumps({'string': self.send_text,
+        json_data = json.dumps({'user_id': self.user_id,
+                                'string': self.send_text,
                                 'data': [self.training_data_handler.training_data[-1]]})
         # print json_data
 
@@ -253,13 +241,7 @@ class AuthenticationWindow:
         r = requests.post(self.server_address + '/auth', headers=headers, data=json_data)
         print r
         print r.text
-
-    def on_closing(self):
-        print 'close'
-        self.training_data_handler.new_instance()
-        process_timestamp_data(self.training_data_handler.training_data, name=self.name, save_name=self.save_name,
-                               save_dir=self.save_dir)
-        self.root.destroy()
+        return r.text
 
 
 def process_timestamp_data(data, name=None, save_name=None, save_dir='/Users/Aaron/Authentype_local/'):
@@ -316,16 +298,36 @@ def process_timestamp_data(data, name=None, save_name=None, save_dir='/Users/Aar
 
     return merged_run_dfs
 
-if __name__ == "__main__":
+
+def main(argv):
+    user_id = 'aaron'
+    user_name = 'aaron'
     serv_address = "http://127.0.0.1:5000"
+    type = 'reg'
+    text = 'the quick brown fox jumped over the lazy dog and ran all the way to wildhacks'
+    try:
+        opts, args = getopt.getopt(argv, "aru:s:i:t:", ["usrname=", "usrid=", "srv=", "text="])
+    except getopt.GetoptError:
+        print 'test.py -a -r -u <usrname> -i <usrid> -s <srv>'
+        sys.exit(2)
+    for opt, arg in opts:
+        if opt == '-a':
+            type = 'auth'
+        elif opt == '-r':
+            type = 'reg'
+        elif opt in ('-u', '--usrname'):
+            user_name = arg
+        elif opt in ("-i", "--usrid"):
+            user_id = arg
+        elif opt in ("-s", "--srv"):
+            serv_address = arg
+        elif opt in ("-t", "--text"):
+            text = arg
 
-    aw = AuthenticationWindow(user_id='aaron', user_name='aaron', server_path=serv_address,
-                              save_dir='/Users/Aaron/Authentype_local/')
+    if type == 'auth':
+        AuthenticationWindow(user_id=user_id, user_name=user_name, server_path=serv_address, text=text)
+    elif type == 'reg':
+        RegistrationWindow(user_id=user_id, user_name=user_name, server_path=serv_address, text=text)
 
-    # aw = RegistrationWindow(user_id='aaron', user_name='aaron', save_dir='/Users/Aaron/Authentype_local/')
-    # print training_data.training_data
-    # process_timestamp_data(training_data.training_data, save_name=name)
-
-    # import ast
-    # process_timestamp_data(
-    #     ast.literal_eval("[[]]"))
+if __name__ == "__main__":
+    main(sys.argv[1:])
