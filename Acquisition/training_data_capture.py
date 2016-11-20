@@ -95,7 +95,7 @@ class AcquisitionWindow:
             return
         if key == '\x7f':
             key = 'del'
-        print 'up', key
+        # print 'up', key
         if key in self.old_keys_still_down:
             self.training_data_handler.add_data_to_instance(
                 len(self.training_data_handler.training_data)-1,
@@ -121,7 +121,7 @@ class AcquisitionWindow:
         if key == '\x7f':
             key = 'del'
         self.keys_still_down.add(key)
-        print 'down', key
+        # print 'down', key
         self.training_data_handler.add_data(dict(
             key=key,
             time=time.time(),
