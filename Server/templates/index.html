@@ -14,7 +14,6 @@
 .alert.success {background-color: #4CAF50;}
 .alert.info {background-color: #2196F3;}
 .alert.warning {background-color: #ff9800;}
-
 .button_style {
   -webkit-border-radius: 28;
   -moz-border-radius: 28;
@@ -28,7 +27,6 @@
   border: solid #000000 2px;
   text-decoration: none;
 }
-
 .button_style:hover {
   background: #dbcedb;
   background-image: -webkit-linear-gradient(top, #dbcedb, #d1bed1);
@@ -45,6 +43,8 @@
 <tr valign="middle">
 <td>
 <center>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.0/jquery.min.js"></script>
+<script src="static/js/script.js"></script>
 <img src="/static/authentype.jpg" alt="Authentype" style="width:304px;height:228px;">
 
 <p><h1>Introducing Authentype!</h1></p>
@@ -56,14 +56,27 @@
 
 <div class=""container">
     <section id ="content">
-      <form method="post" action="/hello">
+<!-- <<<<<<< Updated upstream -->
+      <form method="post" action="/" id="login_form">
           <input type="text" class="ui-input-text" name="username" placeholder="username" onfocus="make_blank(this);"
-       onblur="restore_placeholder(this);"/><br />
+       onblur="restore_placeholder(this);" /><br />
           <br />
           <input type="password" class="ui-input-text" name="pw" placeholder="password" onfocus="make_blank(this);"
        onblur="restore_placeholder(this);"/><br /> <br />
-          <input type="submit" class="button_style" value = "login" name = 'submit'/>
-          <input type="submit" class="button_style" value = "register" name = 'submit'/>
+          <input type="submit" class="button_style" id="login_butt" value = "login" name = 'submit'/>
+          <input type="submit" class="button_style" id="register_butt" value = "register" name = 'submit'/>
+<!-- 
+=======
+      <form method="post" action="/" id="login_form">
+          <label>Username<br /></label>
+          <input type="text" class="ui-input-text" name="username" /><br />
+          <br />
+          <label>Password<br />
+          <input type="password" class="ui-input-text" name="pw" /><br /> <br />
+          <input type="submit" class="button_style" id="login_butt" value = "login" name = 'submit'/>
+          <input type="submit" class="button_style" id="register_butt" value = "register" name = 'submit'/>
+>>>>>>> Stashed changes
+ -->
       </form>
     </section>
     </div>
@@ -72,48 +85,42 @@
 <br />
 <br />
 </center>
-
 {%  if match %}
-<div class="alert success">
+<div class="alert success" id="login">
   <span class="closebtn">&times;</span>
   You have correctly logged in.
 </div>
 {%  endif %}
 {%  if no_match %}
-<div class="alert warning">
+<div class="alert warning" id="incorrect login">
   <span class="closebtn">&times;</span>
   The username/password is inccorrect. Have you registered?
 </div>
 {%  endif %}
 {%  if user_taken %}
-<div class="alert warning">
+<div class="alert warning" id="taken warning">
   <span class="closebtn">&times;</span>
   That username is already taken. Please register with a different one.
 </div>
 {%  endif %}
 {%  if registered %}
-<div class="alert success">
+<div class="alert success" id="registered">
   <span class="closebtn">&times;</span>
   You have successfully registered!
 </div>
  {%  endif %}
-
 <script>
 // Get all elements with class="closebtn"
 var close = document.getElementsByClassName("closebtn");
 var i;
-
 // Loop through all close buttons
 for (i = 0; i < close.length; i++) {
     // When someone clicks on a close button
     close[i].onclick = function(){
-
         // Get the parent of <span class="closebtn"> (<div class="alert">)
         var div = this.parentElement;
-
         // Set the opacity of div to 0 (transparent)
         div.style.opacity = "0";
-
         // Hide the div after 600ms (the same amount of milliseconds it takes to fade out)
         setTimeout(function(){ div.style.display = "none"; }, 600);
     }
