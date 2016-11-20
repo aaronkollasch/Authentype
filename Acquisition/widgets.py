@@ -228,16 +228,17 @@ class AuthenticationWindow:
         self.text.delete('1.0', tk.END)
         self.text.insert(tk.END, 'Sending data')
         self.send_and_check()
+        self.training_data_handler = DataHandler()
         self.text.configure(bg='#CCFFCC')
-        self.text.config(state=tk.DISABLED)
+        # self.text.config(state=tk.DISABLED)
         self.root.update()
-        s = sched.scheduler(time.time, time.sleep)
-        s.enter(1, 1, self.on_closing, ())
-        s.run()
+        # s = sched.scheduler(time.time, time.sleep)
+        # s.enter(1, 1, self.on_closing, ())
+        # s.run()
 
     def send_and_check(self):
         print 'send'
-        json_data = json.dumps(self.training_data_handler.training_data)
+        json_data = json.dumps(self.training_data_handler.training_data[-1])
         print json_data
 
         # connection = httplib.HTTPSConnection(self.serv_address)
@@ -246,8 +247,9 @@ class AuthenticationWindow:
         # response = connection.getresponse()
         # response.read()
 
-        r = requests.post(self.server_address, headers=headers, data=json_data)
+        r = requests.post(self.server_address + '/auth', headers=headers, data=json_data)
         print r
+        print r.text
 
     def on_closing(self):
         print 'close'
@@ -312,7 +314,7 @@ def process_timestamp_data(data, name=None, save_name=None, save_dir='/Users/Aar
     return merged_run_dfs
 
 if __name__ == "__main__":
-    serv_address = "https://127.0.0.1:5000"
+    serv_address = "http://127.0.0.1:5000"
 
     aw = AuthenticationWindow(user_id='aaron', user_name='aaron', server_path=serv_address,
                               save_dir='/Users/Aaron/Authentype_local/')
