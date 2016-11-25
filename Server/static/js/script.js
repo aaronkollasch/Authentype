@@ -20,7 +20,6 @@ $(function(){
 				console.log(error);
 			}
 		});
-		return false;
 	});
 	
 	$("#register_butt").click(function(){
@@ -45,38 +44,38 @@ $(function(){
 				console.log(error);
 			}
 		});
-		return false;
 	});	
 });
 
-var msg_ids = ["login", "incorrect login", "taken warning", "registered"];
-
-function update_progress(status_url) {
-	// send GET request to status URL
-	$.getJSON(status_url, function(data) {
-		console.log('update progress');
-		console.log(data);
-		// update UI
-		if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
-			if ('result' in data) {
-				console.log('1');
-				// show result
-				for (var i = 0; i < msg_ids.length; i++) {
-					hide(document.getElementById(msg_ids[i]));
-				}
-				show(document.getElementById(data['result']));
-			}
-			else {
-				// something unexpected happened
-				console.log('unexpected happening');
-			}
-		}
-		else {
-			console.log('rerun');
-			// rerun in 2 seconds
-			setTimeout(function() {
-				update_progress(status_url);
-			}, 2000);
-		}
-	});
-}
+// var msg_ids = ["login", "incorrect login", "taken warning", "registered"];
+// 
+// function update_progress(status_url) {
+// 	console.log(status_url)
+// 	// send GET request to status URL
+// 	$.getJSON(status_url, "", function(data) {
+// 		console.log('update progress');
+// 		console.log(data);
+// 		// update UI
+// 		if (data['state'] != 'PENDING' && data['state'] != 'PROGRESS') {
+// 			if ('result' in data) {
+// 				console.log('1');
+// 				// show result
+// 				for (var i = 0; i < msg_ids.length; i++) {
+// 					hide(document.getElementById(msg_ids[i]));
+// 				}
+// 				show(document.getElementById(data['result']));
+// 			}
+// 			else {
+// 				// something unexpected happened
+// 				console.log('unexpected happening');
+// 			}
+// 		}
+// 		else {
+// 			console.log('rerun');
+// 			// rerun in 2 seconds
+// 			setTimeout(function() {
+// // 				update_progress(status_url);
+// 			}, 2000);
+// 		}
+// 	});
+// }

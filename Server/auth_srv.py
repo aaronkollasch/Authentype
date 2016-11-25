@@ -47,8 +47,7 @@ def hello():
     submit = flask.request.form['submit']
     task = long_task.apply_async(args=(usrname, pw, submit))
     # println(url_for('taskstatus', task_id=task.id))
-    return jsonify({}), 202, {'Location': url_for('taskstatus',
-                                                  task_id=task.id)}
+    return render_template('index.html'), 202, {'Location':  url_for('taskstatus', task_id=task.id)}  # '/status/{0}'.format(task.id)}  #
 
 
 @app.route('/status/<task_id>')
@@ -133,7 +132,8 @@ def auth():
     #render_template('index.html', registered=1)
     #received_json_data = json.loads(flask.request.)
     #pw = flask.request.form['pw']
-    
+
+
 @app.route('/reg', methods=['POST'])
 def reg():
     recv_data = json.loads(request.data)

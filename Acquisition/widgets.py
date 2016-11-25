@@ -10,7 +10,7 @@ import getopt
 import sched
 import Tkinter as tk
 
-_repetitions = 5
+_repetitions = 3
 _dialog_text = 'Type: "{0}" {1} times\n' \
                'press enter between each repetition\n'
 

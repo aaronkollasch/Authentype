@@ -135,6 +135,91 @@ def find_ks_score(training, test):
     return score_combined, score_pp, score_ht
 
 
+def compare_with_training(test_df, name):
+    user_data = {
+        'Aaron': '/Users/Aaron/Authentype_local/Aaron_2016-11-19_14-47-28_quickbrownfox/'
+                 'Aaron_2016-11-19_14-47-28.txt',
+        'Christie': '/Users/Aaron/Authentype_local/Christie_2016-11-19_16-04-15_quickbrownfox/'
+                    'Christie_2016-11-19_16-04-15.txt',
+        'Joe': '/Users/Aaron/Authentype_local/Joe_2016-11-19_16-13-03_quickbrownfox/'
+               'Joe_2016-11-19_16-13-03.txt',
+        'Omar': '/Users/Aaron/Authentype_local/Omar_2016-11-19_16-07-40_quickbrownfox/'
+                'Omar_2016-11-19_16-07-40.txt',
+        'Luke': '/Users/Aaron/Authentype_local/LUKE_2016-11-19_17-31-31_quickbrownfox/'
+                'LUKE_2016-11-19_17-31-31.txt',
+        'Tiffany': '/Users/Aaron/Authentype_local/Tiffany_2016-11-19_17-43-09_quickbrownfox/'
+                   'Tiffany_2016-11-19_17-43-09.txt',
+        'Leo': '/Users/Aaron/Authentype_local/Leo_2016-11-19_18-09-34_quickbrownfox/'
+               'Leo_2016-11-19_18-09-34.txt',
+        'Aimee': '/Users/Aaron/Authentype_local/Aimee Pierce_2016-11-19_18-36-44_quickbrownfox/'
+                 'Aimee Pierce_2016-11-19_18-36-44.txt',
+        'garret': '/Users/Aaron/Authentype_local/garret_2016-11-19_18-41-45_quickbrownfox/'
+                  'garret_2016-11-19_18-41-45.txt',
+        'Ben': '/Users/Aaron/Authentype_local/Ben_2016-11-19_21-35-24_quickbrownfox/'
+               'Ben_2016-11-19_21-35-24.txt'
+    }
+
+    # input = pd.read_table('/Users/Aaron/Authentype_local/Aaron_2016-11-19_14-47-28_quickbrownfox/'
+    #                       'Aaron_2016-11-19_14-47-28.txt')
+    # ix = 3
+    # training = input[input['trial'] != ix]
+    # test = input[input['trial'] == ix]
+    # print training
+
+    for key in user_data.keys():
+        user_data[key] = pd.read_table(user_data[key])
+
+    user_data[name] = test_df
+
+    print 'loaded'
+
+    save_dict = {}
+
+    for i_key, i_item in user_data.items():  # for each subject
+        assert isinstance(i_item, pd.DataFrame)
+        save_dict[i_key] = {}
+        for j_key, j_item in user_data.items():
+            assert isinstance(j_item, pd.DataFrame)
+            for trial in sorted(set(j_item['trial'])):  # for each subject trial
+                test_data = j_item[j_item['trial'] == trial]
+                if i_key == j_key:
+                    training_data = i_item[i_item['trial'] != trial]
+                else:
+                    training_data = i_item
+                score_combined, score_pp, score_ht = find_ks_score(test=test_data, training=training_data)
+                save_dict[i_key][j_key + repr(trial)] = score_combined
+
+    print save_dict
+
+    out_arr = np.zeros(shape=(len(save_dict), len(save_dict.values()[0])))
+    for i, name in enumerate(sorted(save_dict.keys())):
+        for j, trial in enumerate(sorted(save_dict[name].keys())):
+            out_arr[i, j] = save_dict[name][trial]
+
+    print out_arr
+
+    names = sorted(save_dict.keys())
+    trials = sorted(save_dict.values()[0].keys())
+
+    fig, ax = plt.subplots()
+    plt.pcolormesh(out_arr, cmap='Blues_r', norm=MidPointNorm(midpoint=-0.7, midpoint_out=0.95), vmin=-0.85)
+    # plt.pcolormesh(out_arr, cmap='jet_r')
+
+    ax.set_yticks(np.arange(len(save_dict)) + 0.5, minor=False)
+    ax.set_xticks(np.arange(len(save_dict[names[0]])) + 0.5, minor=False)
+
+    ax.set_xticklabels(trials, minor=False)
+    ax.set_yticklabels(names, minor=False)
+
+    plt.xticks(rotation=90)
+
+    plt.colorbar()
+
+    ax.invert_yaxis()
+    fig.tight_layout()
+    plt.show()
+
+
 if __name__ == '__main__':
     user_data = {
         'Aaron': '/Users/Aaron/Authentype_local/Aaron_2016-11-19_14-47-28_quickbrownfox/'
